@@ -15,9 +15,12 @@
 
 import os
 import json
+import time
+import random
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from metrics import register_metrics
 
 config = {
     'DATABASE_URI': os.environ.get('DATABASE_URI'),
@@ -103,7 +106,17 @@ def hello():
 
 @app.route("/config")
 def configuration():
-    return json.dumps(config)
+    return 'config'
+
+@app.route("/oops")
+def oops():
+    return 'oops', 500
+
+@app.route('/metrics')
+def metrics():
+    from prometheus_client import generate_latest
+    return generate_latest()
 
 if __name__ == '__main__':
+    register_metrics(app)
     app.run(host='0.0.0.0', port='9000')
